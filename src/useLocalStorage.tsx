@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export function useLocalStorage<T>(key: string, initialValue: T | (() => T)) {
   const [value, setValue] = useState<T>(() => {
@@ -13,10 +13,16 @@ export function useLocalStorage<T>(key: string, initialValue: T | (() => T)) {
       return JSON.parse(jsonValue)
     }
   })
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+
+  return [value, setValue] as [T, typeof setValue]
 }
 
-// This hook uses local storage to store a value. It first checks if the initial
-// value is a function, and if so, calls it to get the initial value.
-// Otherwise, it uses the initial value directly.
-// It then checks if the value is in local storage, and if so, parses it and returns it.
-// Otherwise, it returns the initial value.
+// It will first check if the initial value from local store is null.
+// If it is, it will check if the initial value is a function
+// If it is, it will call the function and return the value
+// If it is not, it will return the initial value
+// If it is not null, it will parse the value and return it
